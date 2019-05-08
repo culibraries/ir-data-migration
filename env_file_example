@@ -1,0 +1,7 @@
+#AWS ENV 
+AWS_ACCESS_KEY_ID=<Set KEY>
+AWS_SECRET_ACCESS_KEY=<Set KEY>
+AWS_DEFAULT_REGION=us-west-2
+
+#Cybercom API Token
+API_TOKEN=<Set Token>
