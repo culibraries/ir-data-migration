@@ -110,7 +110,10 @@ def runMetadataFile(df):
         row['keywords']=[x.strip() for x in row['keywords']]
         row['native_filesize']=int(row['native_filesize'])
         row['pdf_filesize']=int(row['pdf_filesize'])
-        row['data_files']= put_files_s3(row)
+        if record and 'data_files' in record:
+            row['data_files']=record['data_files']
+        else:
+            row['data_files']= put_files_s3(row)
         row['advisors']=check_advisors([row['advisor1'].strip(),row['advisor2'].strip(),row['advisor3'].strip(),row['advisor4'].strip(),row['advisor5'].strip()])
         pub+=1
         postCatalogRecord(row)
