@@ -3,7 +3,10 @@ from time import sleep
 import requests,os
 import boto3,botocore
 import re
-
+import numpy as np
+import logging
+#, filemode='w'
+logging.basicConfig(filename='dm-ir.log', format='%(name)s - %(levelname)s - %(message)s')
 catalog_url="https://libapps.colorado.edu/api/catalog/data/catalog/cuscholar"
 api_token=os.getenv('API_TOKEN')
 headers={"Content-Type":"application/json","Authorization":"Token {0}".format(api_token)}
@@ -26,7 +29,7 @@ def postCatalogRecord(data):
     #print (req.text)
     global count
     count+=1
-    print(req.status_code," : ",count)
+    print(req.status_code," : ",count,data['context_key'])
 
 def getCatalogRecord(url):
     query={"filter":{"front_end_url":url}}
@@ -51,11 +54,12 @@ def set_name_pdf(name):
 
 def put_files_s3(data,bucket=s3_bucket):
     #s3 = boto3.resource('s3')
-    req =requests.get(data['download_url'], allow_redirects=True)
+    req =requests.head(data['download_url'], allow_redirects=True)
     d = req.headers['content-disposition']
     fname = set_name_pdf(re.findall("filename=(.+)", d))
     key ="original/{0}/{1}".format(data['context_key'],fname)
     if not s3_key_exists(bucket,key):
+        req =requests.get(data['download_url'], allow_redirects=True)
         s3.Bucket(bucket).put_object(Key=key, Body=req.content)
         if 'data_files' in data:
             data['data_files']['s3']={"bucket":bucket,"key":key}
@@ -71,12 +75,17 @@ def put_files_s3(data,bucket=s3_bucket):
         afiles_list=data['supplemental_filesizes'].split(',')
         key_list=[]
         for idx, val in enumerate(afiles_list):
-            req =requests.get("{0}&type=additional&filename={1}".format(data['download_url'],idx), allow_redirects=True)
-            d = req.headers['content-disposition']
-            fname = set_name_pdf(re.findall("filename=(.+)", d))
-            key ="original/{0}/{1}/{2}".format(data['context_key'],'additional_files',fname)
-            key_list.append(key)
-            s3.Bucket(bucket).put_object(Key=key, Body=req.content)
+            try:
+                req =requests.head("{0}&type=additional&filename={1}".format(data['download_url'],idx), allow_redirects=True)
+                d = req.headers['content-disposition']
+                fname = set_name_pdf(re.findall("filename=(.+)", d))
+                key ="original/{0}/{1}/{2}".format(data['context_key'],'additional_files',fname)
+                key_list.append(key)
+                if not s3_key_exists(bucket,key):
+                    req =requests.get("{0}&type=additional&filename={1}".format(data['download_url'],idx), allow_redirects=True)
+                    s3.Bucket(bucket).put_object(Key=key, Body=req.content)
+            except:
+                logging.error('Alternate File Error: {0} filelist: {1} Error index {2}'.format(data['context_key'],afiles_list,idx))
         data['data_files']['s3']['additional_files']=key_list
     return data['data_files']
 
@@ -110,10 +119,11 @@ def runMetadataFile(df):
         row['keywords']=[x.strip() for x in row['keywords']]
         row['native_filesize']=int(row['native_filesize'])
         row['pdf_filesize']=int(row['pdf_filesize'])
-        if record and 'data_files' in record:
-            row['data_files']=record['data_files']
-        else:
+        try:
             row['data_files']= put_files_s3(row)
+        except Exception as e:
+            row['data_files']={"s3":"error"}
+            logging.error('Main File Error: {0} Title: {1} '.format(row['context_key'],row['title']))
         row['advisors']=check_advisors([row['advisor1'].strip(),row['advisor2'].strip(),row['advisor3'].strip(),row['advisor4'].strip(),row['advisor5'].strip()])
         pub+=1
         postCatalogRecord(row)
@@ -127,4 +137,6 @@ if __name__ == "__main__":
         filename=sys.argv[1]
     df=pandas.read_csv(filename,converters={i: str for i in range(0, 83)})
     df = df.drop_duplicates()
+    df['download_url'].replace('', np.nan, inplace=True)
+    df.dropna(subset=['download_url'], inplace=True)
     runMetadataFile(df)
