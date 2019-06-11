@@ -33,9 +33,8 @@ def postCatalogRecord(data):
 
 def getCatalogRecord(url):
     query={"filter":{"front_end_url":url}}
-    req=requests.get("{0}.json?query={1}".format(catalog_url,json.dumps(query)),headers=headers)
+    req=requests.post("{0}.json".format(catalog_url),data=json.dumps(data,default=str),headers=headers)
     data=req.json()
-    #print(data)
     if data['count']==0:
         return False
     return data['results'][0]
@@ -50,7 +49,7 @@ def s3_key_exists(bucket,key):
     return True
 
 def set_name_pdf(name):
-    return name[0].replace('"','').replace("'",'')
+    return name[0].replace('"','').replace("'",'').replace('/','_')
 
 def put_files_s3(data,bucket=s3_bucket):
     #s3 = boto3.resource('s3')
