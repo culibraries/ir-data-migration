@@ -23,7 +23,7 @@ def checkSame(row1,row2):
     return True
 
 def postCatalogRecord(data):
-    req=requests.post("{0}.json".format(catalog_url),data=json.dumps(data),headers=headers)
+    req=requests.post("{0}.json".format(catalog_url),data=json.dumps(data,default=str),headers=headers)
     if req.status_code > 400:
         raise Exception(req.text)
     #print (req.text)
@@ -33,7 +33,7 @@ def postCatalogRecord(data):
 
 def getCatalogRecord(url):
     query={"filter":{"front_end_url":url}}
-    req=requests.post("{0}.json".format(catalog_url),data=json.dumps(data,default=str),headers=headers)
+    req=requests.get("{0}.json?query={1}".format(catalog_url,json.dumps(query)),headers=headers)
     data=req.json()
     if data['count']==0:
         return False
