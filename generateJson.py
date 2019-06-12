@@ -78,7 +78,7 @@ def put_files_s3(data,bucket=s3_bucket):
         else:
             part_url= data['download_url'].split("//")
             domain = part_url[0]+'//'+part_url[1].split('/')[0]
-            url = domain+'/cgi/viewcontent.cgi?article='+domain[1].split('/')[4]+'&context='+data['issue']
+            url = domain+'/cgi/viewcontent.cgi?article='+part_url[1].split('/')[4]+'&context='+data['issue']
             download_url = url
         for idx, val in enumerate(afiles_list):
             try:
