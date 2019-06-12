@@ -92,8 +92,8 @@ def put_files_s3(data,bucket=s3_bucket):
                     s3.Bucket(bucket).put_object(Key=key, Body=req.content)
             except:
                 logging.error('Alternate File Error: {0} filelist: {1} Error index {2}'.format(data['context_key'],afiles_list,idx))
-        data['data_files']['s3']['original']['additional_files']=key_list
-        data['data_files']['s3']['processed'] = {"bucket": bucket, "key":"", "message":"","additional_files":[]}
+    data['data_files']['s3']['original']['additional_files']=key_list
+    data['data_files']['s3']['processed'] = {"bucket": bucket, "key":"", "message":"","additional_files":[]}
     return data['data_files']
 
 def check_advisors(str_list):
