@@ -73,9 +73,16 @@ def put_files_s3(data,bucket=s3_bucket):
     if data['supplemental_filenames'].strip():
         afiles_list=data['supplemental_filesizes'].split(',')
         key_list=[]
+        if 'cgi/viewcontent.cgi' in data['download_url']:
+            download_url = data['download_url']
+        else:
+            domain= data['download_url'].split("//")
+            url = domain+'/cgi/viewcontent.cgi?article='+domain[1].split('/')[4]+'&context='+data['issue']
+            download_url = url
+            
         for idx, val in enumerate(afiles_list):
             try:
-                req =requests.head("{0}&type=additional&filename={1}".format(data['download_url'],idx), allow_redirects=True)
+                req =requests.head("{0}&type=additional&filename={1}".format(download_url,idx), allow_redirects=True)
                 d = req.headers['content-disposition']
                 fname = set_name_pdf(re.findall("filename=(.+)", d))
                 key ="original/{0}/{1}/{2}".format(data['context_key'],'additional_files',fname)
