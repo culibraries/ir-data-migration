@@ -76,10 +76,10 @@ def put_files_s3(data,bucket=s3_bucket):
         if 'cgi/viewcontent.cgi' in data['download_url']:
             download_url = data['download_url']
         else:
-            domain= data['download_url'].split("//")
+            part_url= data['download_url'].split("//")
+            domain = part_url[0]+'//'+part_url[1].split('/')[0]
             url = domain+'/cgi/viewcontent.cgi?article='+domain[1].split('/')[4]+'&context='+data['issue']
             download_url = url
-            
         for idx, val in enumerate(afiles_list):
             try:
                 req =requests.head("{0}&type=additional&filename={1}".format(download_url,idx), allow_redirects=True)
