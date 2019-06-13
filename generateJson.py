@@ -131,8 +131,8 @@ def runMetadataFile(df):
         except Exception as e:
             errorMessage = 'File is unable to download'
             row['data_files'] =  {'s3' :{ 'original': {}, 'processed': {}}}
-            row['data_files']['s3']['original'] = {"bucket":s3_bucket, "key": "", "message": "", "additional_files": [], "error": errorMessage}
-            row['data_files']['s3']['processed'] = {"bucket":s3_bucket, "key": "", "message": "", "additional_files": [], "error": ""}
+            row['data_files']['s3']['original'] = {"bucket":s3_bucket, "key": "", "additional_files": [], "message": "", "error": errorMessage}
+            row['data_files']['s3']['processed'] = {"bucket":s3_bucket, "key": "", "additional_files": [], "message": "", "error": ""}
             
             logging.error('Main File Error: {0} Title: {1} '.format(row['context_key'],row['title']))
         row['advisors']=check_advisors([row['advisor1'].strip(),row['advisor2'].strip(),row['advisor3'].strip(),row['advisor4'].strip(),row['advisor5'].strip()])
