@@ -61,15 +61,15 @@ def put_files_s3(data,bucket=s3_bucket):
         req =requests.get(data['download_url'], allow_redirects=True)
         s3.Bucket(bucket).put_object(Key=key, Body=req.content)
         if 'data_files' in data:
-            data['data_files']['s3']['original']={"bucket":bucket,"key":key}
+            data['data_files']['s3']['original']={"bucket":bucket,"key":key,"additional_files":[]}
         else:
-            data['data_files']={'s3': {'original' : {"bucket":bucket,"key":key}}}
+            data['data_files']={'s3': {'original' : {"bucket":bucket,"key":key,"additional_files":[]}}}
     else:
         message="File already uploaded"
         if 'data_files' in data:
-            data['data_files']['s3']['original']={"bucket":bucket,"key":key,"message":message}
+            data['data_files']['s3']['original']={"bucket":bucket,"key":key,"additional_files":[],"message":message}
         else:
-            data['data_files']={'s3': {'original' : {"bucket":bucket,"key":key,"message":message}}}
+            data['data_files']={'s3': {'original' : {"bucket":bucket,"key":key,"additional_files":[],"message":message}}}
     key_list=[]
     if data['supplemental_filenames'].strip():
         afiles_list=data['supplemental_filesizes'].split(',')
@@ -93,7 +93,7 @@ def put_files_s3(data,bucket=s3_bucket):
             except:
                 logging.error('Alternate File Error: {0} filelist: {1} Error index {2}'.format(data['context_key'],afiles_list,idx))
     data['data_files']['s3']['original']['additional_files']=key_list
-    data['data_files']['s3']['processed'] = {"bucket": bucket, "key":"", "message":"","additional_files":[]}
+    data['data_files']['s3']['processed'] = {"bucket": bucket, "key":"","additional_files":[],"message":""}
     return data['data_files']
 
 def check_advisors(str_list):
