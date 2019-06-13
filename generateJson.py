@@ -70,9 +70,9 @@ def put_files_s3(data,bucket=s3_bucket):
             data['data_files']['s3']['original']={"bucket":bucket,"key":key,"message":message}
         else:
             data['data_files']={'s3': {'original' : {"bucket":bucket,"key":key,"message":message}}}
+    key_list=[]
     if data['supplemental_filenames'].strip():
         afiles_list=data['supplemental_filesizes'].split(',')
-        key_list=[]
         if 'cgi/viewcontent.cgi' in data['download_url']:
             download_url = data['download_url']
         else:
@@ -92,7 +92,7 @@ def put_files_s3(data,bucket=s3_bucket):
                     s3.Bucket(bucket).put_object(Key=key, Body=req.content)
             except:
                 logging.error('Alternate File Error: {0} filelist: {1} Error index {2}'.format(data['context_key'],afiles_list,idx))
-        data['data_files']['s3']['original']['additional_files']=key_list
+    data['data_files']['s3']['original']['additional_files']=key_list
     data['data_files']['s3']['processed'] = {"bucket": bucket, "key":"", "message":"","additional_files":[]}
     return data['data_files']
 
