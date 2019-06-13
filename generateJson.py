@@ -92,7 +92,7 @@ def put_files_s3(data,bucket=s3_bucket):
                     s3.Bucket(bucket).put_object(Key=key, Body=req.content)
             except:
                 logging.error('Alternate File Error: {0} filelist: {1} Error index {2}'.format(data['context_key'],afiles_list,idx))
-    data['data_files']['s3']['original']['additional_files']=key_list
+        data['data_files']['s3']['original']['additional_files']=key_list
     data['data_files']['s3']['processed'] = {"bucket": bucket, "key":"", "message":"","additional_files":[]}
     return data['data_files']
 
@@ -129,7 +129,11 @@ def runMetadataFile(df):
         try:
             row['data_files']= put_files_s3(row)
         except Exception as e:
-            row['data_files']={"s3":"error"}
+            errorMessage = 'File is unable to download'
+            row['data_files'] =  {'s3' :{ 'original': {}, 'processed': {}}}
+            row['data_files']['s3']['original'] = {"bucket":s3_bucket, "key": "", "message": "", "additional_files": [], "error": errorMessage}
+            row['data_files']['s3']['processed'] = {"bucket":s3_bucket, "key": "", "message": "", "additional_files": [], "error": ""}
+            
             logging.error('Main File Error: {0} Title: {1} '.format(row['context_key'],row['title']))
         row['advisors']=check_advisors([row['advisor1'].strip(),row['advisor2'].strip(),row['advisor3'].strip(),row['advisor4'].strip(),row['advisor5'].strip()])
         pub+=1
