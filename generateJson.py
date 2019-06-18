@@ -133,7 +133,6 @@ def runMetadataFile(df):
             row['data_files'] =  {'s3' :{ 'original': {}, 'processed': {}}}
             row['data_files']['s3']['original'] = {"bucket":s3_bucket, "key": "", "additional_files": [], "message": "", "error": errorMessage}
             row['data_files']['s3']['processed'] = {"bucket":s3_bucket, "key": "", "additional_files": [], "message": "", "error": ""}
-            
             logging.error('Main File Error: {0} Title: {1} '.format(row['context_key'],row['title']))
         row['advisors']=check_advisors([row['advisor1'].strip(),row['advisor2'].strip(),row['advisor3'].strip(),row['advisor4'].strip(),row['advisor5'].strip()])
         pub+=1
@@ -146,8 +145,9 @@ if __name__ == "__main__":
     filename="20190208cuscholar_inventory.csv"
     if len(sys.argv) >1:
         filename=sys.argv[1]
-    df=pandas.read_csv(filename,converters={i: str for i in range(0, 83)})
+    df = pandas.read_csv(filename,converters={i: str for i in range(0, 83)})
     df = df.drop_duplicates()
+    df = df[df['state'] == 'published']
     df['download_url'].replace('', np.nan, inplace=True)
     df.dropna(subset=['download_url'], inplace=True)
     runMetadataFile(df)
