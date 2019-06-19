@@ -31,8 +31,8 @@ def postCatalogRecord(data):
     count+=1
     print(req.status_code," : ",count,data['context_key'])
 
-def getCatalogRecord(url):
-    query={"filter":{"front_end_url":url}}
+def getCatalogRecord(context_key):
+    query={"filter":{"context_key":context_key}}
     req=requests.get("{0}.json?query={1}".format(catalog_url,json.dumps(query)),headers=headers)
     data=req.json()
     if data['count']==0:
@@ -105,7 +105,7 @@ def runMetadataFile(df):
     rowold=None
     for i in df.index:
         row=df.loc[i].to_dict()
-        record=getCatalogRecord(row["front_end_url"])
+        record=getCatalogRecord(row["context_key"])
         if record:
             if original_data_load:
                 id= record.pop('_id',None)
