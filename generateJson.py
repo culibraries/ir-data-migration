@@ -7,7 +7,7 @@ import numpy as np
 import logging
 #, filemode='w'
 logging.basicConfig(filename='dm-ir.log', format='%(name)s - %(levelname)s - %(message)s')
-catalog_url="https://libapps.colorado.edu/api/catalog/data/catalog/cuscholartest"
+catalog_url="https://libapps.colorado.edu/api/catalog/data/catalog/cuscholartest-v2"
 api_token=os.getenv('API_TOKEN')
 headers={"Content-Type":"application/json","Authorization":"Token {0}".format(api_token)}
 print (headers)
@@ -105,7 +105,7 @@ def runMetadataFile(df):
     rowold=None
     for i in df.index:
         row=df.loc[i].to_dict()
-        record=getCatalogRecord(row["context_key"])
+        record=getCatalogRecord(row['context_key'])
         if record:
             if original_data_load:
                 id= record.pop('_id',None)
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     filename="20190208cuscholar_inventory.csv"
     if len(sys.argv) >1:
         filename=sys.argv[1]
-    df = pandas.read_csv(filename,converters={i: str for i in range(0, 83)})
+    df = pandas.read_csv(filename,converters={i: str for i in range(0, 87)})
     df = df.drop_duplicates()
     df = df[df['state'] == 'published']
     df['download_url'].replace('', np.nan, inplace=True)
