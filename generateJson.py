@@ -7,7 +7,7 @@ import numpy as np
 import logging
 #, filemode='w'
 logging.basicConfig(filename='dm-ir.log', format='%(name)s - %(levelname)s - %(message)s')
-catalog_url="https://libapps.colorado.edu/api/catalog/data/catalog/cuscholartest-v2"
+catalog_url="https://libapps.colorado.edu/api/catalog/data/catalog/cuscholar-final-2019-12-20"
 api_token=os.getenv('API_TOKEN')
 headers={"Content-Type":"application/json","Authorization":"Token {0}".format(api_token)}
 print (headers)
